@@ -6,8 +6,10 @@ An always-on, two-way video portal connecting two offices using WebRTC for peer-
 
 - **Real-time video/audio** between two locations
 - **Office selection UI** - choose your location on launch
-- **Camera controls** - mute, hide camera, switch front/back camera
+- **Camera controls** - mute mic, hide local video, rotate orientation, fullscreen
+- **Auto-hide UI** - controls fade away after 3 seconds, reappear on mouse movement
 - **Auto-reconnect** - automatically reconnects on network issues
+- **Auto-deploy** - GitHub Actions deploys on every push
 - **HTTPS/WSS** - secure connections via Caddy reverse proxy
 - **Kiosk mode** - scripts for dedicated always-on displays
 
@@ -24,6 +26,16 @@ An always-on, two-way video portal connecting two offices using WebRTC for peer-
 - **PeerJS Server**: Handles WebRTC signaling (peer discovery, connection setup)
 - **Caddy**: Provides HTTPS/WSS with automatic Let's Encrypt certificates
 - **WebRTC**: Direct peer-to-peer video/audio (media doesn't go through server)
+
+## Controls
+
+| Button | Function |
+|--------|----------|
+| 🎤 | Mute/unmute microphone |
+| 📷 | Show/hide local video preview |
+| 🔄 | Rotate video orientation |
+| ⛶ | Toggle fullscreen |
+| 🌐 | Change office |
 
 ## Quick Start
 
@@ -73,9 +85,12 @@ Open `https://your-domain.duckdns.org/client/index.html`
 
 ```
 portal/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml      # Auto-deploy on push
 ├── server/
 │   ├── package.json
-│   └── server.js          # PeerJS signaling server
+│   └── server.js           # PeerJS signaling server
 ├── client/
 │   ├── index.html          # UI with office selection
 │   ├── main.js             # WebRTC + PeerJS client
@@ -95,6 +110,17 @@ portal/
 | `/health` | Health check: `{ status, peers, peerIds }` |
 | `/client/` | Portal web client |
 | `/peerjs` | PeerJS WebSocket endpoint |
+
+## Auto-Deploy Setup
+
+The repo includes a GitHub Actions workflow for automatic deployment. To enable:
+
+1. Go to **Settings > Secrets and variables > Actions**
+2. Add these secrets:
+   - `SERVER_HOST`: Your server's IP address
+   - `SSH_PRIVATE_KEY`: Your SSH private key contents
+
+Every push to `master` will automatically deploy to your server.
 
 ## Kiosk Mode (Linux)
 
