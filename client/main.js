@@ -289,7 +289,9 @@ function setupDataConnection(conn) {
   conn.on('data', (data) => {
     if (data.type === 'rotation') {
       const remoteVideo = document.getElementById('remote-video');
-      remoteVideo.style.transform = `rotate(${data.rotation}deg)`;
+      const isPortrait = data.rotation === 90 || data.rotation === 270;
+      remoteVideo.style.transform = `translate(-50%, -50%) rotate(${data.rotation}deg)`;
+      remoteVideo.classList.toggle('portrait', isPortrait);
     }
   });
 
