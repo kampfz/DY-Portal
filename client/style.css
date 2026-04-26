@@ -77,22 +77,18 @@ body {
   position: absolute;
   bottom: 100px;
   right: 20px;
-  width: 20%;
-  max-width: 300px;
-  min-width: 120px;
+  width: 250px;
+  height: 141px;
   border: 2px solid white;
   border-radius: 8px;
   object-fit: cover;
   background: #222;
   z-index: 10;
-  aspect-ratio: 16/9;
 }
 
 #local-video.portrait {
-  width: auto;
-  height: 35vh;
-  max-height: 400px;
-  aspect-ratio: 9/16;
+  width: 141px;
+  height: 250px;
 }
 
 
