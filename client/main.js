@@ -12,6 +12,7 @@ let isCameraHidden = false;
 let currentFacingMode = 'user';
 let availableCameras = [];
 let localVideoRotation = 0;
+let hideControlsTimeout = null;
 
 // Show office selection or portal based on URL params
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,8 +20,37 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('office-select').classList.add('hidden');
     document.getElementById('portal').classList.remove('hidden');
     init();
+    setupMouseTracking();
   }
 });
+
+function setupMouseTracking() {
+  const controls = document.getElementById('controls');
+  const status = document.getElementById('status');
+
+  function showUI() {
+    controls.classList.add('visible');
+    status.classList.add('visible');
+    document.body.style.cursor = 'default';
+
+    if (hideControlsTimeout) {
+      clearTimeout(hideControlsTimeout);
+    }
+
+    hideControlsTimeout = setTimeout(() => {
+      controls.classList.remove('visible');
+      status.classList.remove('visible');
+      document.body.style.cursor = 'none';
+    }, 3000);
+  }
+
+  document.addEventListener('mousemove', showUI);
+  document.addEventListener('click', showUI);
+  document.addEventListener('touchstart', showUI);
+
+  // Show initially
+  showUI();
+}
 
 async function init() {
   updateStatus('Initializing...');

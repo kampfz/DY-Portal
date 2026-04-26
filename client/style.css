@@ -99,6 +99,12 @@ body {
   padding: 8px 12px;
   border-radius: 6px;
   z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#status.visible {
+  opacity: 1;
 }
 
 /* Controls */
@@ -113,6 +119,12 @@ body {
   padding: 12px 20px;
   border-radius: 50px;
   z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#controls.visible {
+  opacity: 1;
 }
 
 #controls button {
