@@ -145,30 +145,17 @@ nohup ./scripts/watchdog.sh &
 
 ## Kiosk Mode (macOS)
 
-For Mac Mini displays:
+For Mac Mini displays, see the full setup guide: **[docs/MAC_SETUP.md](docs/MAC_SETUP.md)**
+
+Quick start:
 
 ```bash
-# Copy scripts to a shared location
-sudo mkdir -p /Users/Shared/portal
-sudo cp scripts/start-kiosk-mac.sh scripts/watchdog-mac.sh /Users/Shared/portal/
-sudo chmod +x /Users/Shared/portal/*.sh
-
-# Test it
-/Users/Shared/portal/start-kiosk-mac.sh
-```
-
-To auto-start on boot:
-
-```bash
-# Install the LaunchAgent
-cp scripts/com.portal.watchdog.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.portal.watchdog.plist
-```
-
-To stop:
-
-```bash
-launchctl unload ~/Library/LaunchAgents/com.portal.watchdog.plist
+# Download and run
+sudo mkdir -p /Users/Shared/portal && cd /Users/Shared/portal
+curl -O https://raw.githubusercontent.com/kampfz/DY-Portal/master/scripts/start-kiosk-mac.sh
+curl -O https://raw.githubusercontent.com/kampfz/DY-Portal/master/scripts/watchdog-mac.sh
+chmod +x *.sh
+./start-kiosk-mac.sh
 ```
 
 ## URL Parameters
