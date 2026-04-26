@@ -87,12 +87,9 @@ body {
   z-index: 10;
 }
 
-#local-video.hidden-camera {
-  opacity: 0.3;
-}
 
 #status {
-  position: absolute;
+  position: fixed;
   top: 16px;
   left: 16px;
   color: white;
@@ -101,12 +98,12 @@ body {
   background: rgba(0, 0, 0, 0.6);
   padding: 8px 12px;
   border-radius: 6px;
-  z-index: 20;
+  z-index: 9999;
 }
 
 /* Controls */
 #controls {
-  position: absolute;
+  position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
@@ -115,7 +112,7 @@ body {
   background: rgba(0, 0, 0, 0.6);
   padding: 12px 20px;
   border-radius: 50px;
-  z-index: 20;
+  z-index: 9999;
 }
 
 #controls button {

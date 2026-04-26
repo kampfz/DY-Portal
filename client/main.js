@@ -282,24 +282,19 @@ window.toggleMute = function() {
   const btn = document.getElementById('btn-mute');
   const icon = document.getElementById('mute-icon');
   btn.classList.toggle('active', isMuted);
-  icon.textContent = isMuted ? '🔇' : '🔊';
+  icon.textContent = isMuted ? '🚫' : '🎤';
 };
 
 window.toggleCamera = function() {
-  if (!localStream) return;
-
   isCameraHidden = !isCameraHidden;
-  localStream.getVideoTracks().forEach(track => {
-    track.enabled = !isCameraHidden;
-  });
 
   const btn = document.getElementById('btn-camera');
   const icon = document.getElementById('camera-icon');
   const localVideo = document.getElementById('local-video');
 
   btn.classList.toggle('active', isCameraHidden);
-  icon.textContent = isCameraHidden ? '📷' : '📷';
-  localVideo.classList.toggle('hidden-camera', isCameraHidden);
+  icon.textContent = isCameraHidden ? '🚫' : '📷';
+  localVideo.style.display = isCameraHidden ? 'none' : 'block';
 };
 
 window.rotateCamera = function() {
