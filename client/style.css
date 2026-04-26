@@ -140,6 +140,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+#controls button span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #controls button:hover {
