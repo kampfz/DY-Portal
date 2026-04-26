@@ -79,14 +79,13 @@ body {
   right: 20px;
   width: 20%;
   max-width: 300px;
-  min-width: 150px;
+  min-width: 120px;
   border: 2px solid white;
   border-radius: 8px;
   object-fit: cover;
   background: #222;
   z-index: 10;
   aspect-ratio: 16/9;
-  transition: width 0.3s, height 0.3s;
 }
 
 

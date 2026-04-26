@@ -13,6 +13,9 @@ let currentFacingMode = 'user';
 let availableCameras = [];
 let localVideoRotation = 0;
 let hideControlsTimeout = null;
+let canvasStream = null;
+let rotationCanvas = null;
+let rotationCtx = null;
 
 // Show office selection or portal based on URL params
 document.addEventListener('DOMContentLoaded', () => {
@@ -174,7 +177,8 @@ function connectToPeerServer() {
   peer.on('call', (call) => {
     console.log('Incoming call from:', call.peer);
     updateStatus(`Incoming call from ${call.peer}`);
-    call.answer(localStream);
+    const streamToSend = canvasStream || localStream;
+    call.answer(streamToSend);
 
     call.on('stream', (stream) => {
       handleRemoteStream(stream);
@@ -221,7 +225,8 @@ function callRemote() {
 
   updateStatus(`Calling ${REMOTE_ID}...`);
 
-  const call = peer.call(REMOTE_ID, localStream);
+  const streamToSend = canvasStream || localStream;
+  const call = peer.call(REMOTE_ID, streamToSend);
 
   if (!call) {
     console.log('Call failed to initiate');
@@ -327,23 +332,86 @@ window.toggleCamera = function() {
   localVideo.style.display = isCameraHidden ? 'none' : 'block';
 };
 
-window.rotateCamera = function() {
+window.rotateCamera = async function() {
   localVideoRotation = (localVideoRotation + 90) % 360;
-  const localVideo = document.getElementById('local-video');
-  const isPortrait = localVideoRotation === 90 || localVideoRotation === 270;
 
-  localVideo.style.transform = `rotate(${localVideoRotation}deg)`;
-
-  if (isPortrait) {
-    localVideo.style.width = 'auto';
-    localVideo.style.height = '30vh';
-    localVideo.style.aspectRatio = '9/16';
-  } else {
-    localVideo.style.width = '20%';
-    localVideo.style.height = 'auto';
-    localVideo.style.aspectRatio = '16/9';
-  }
+  await updateRotatedStream();
 };
+
+async function updateRotatedStream() {
+  if (!localStream) return;
+
+  const videoTrack = localStream.getVideoTracks()[0];
+  if (!videoTrack) return;
+
+  const settings = videoTrack.getSettings();
+  const srcWidth = settings.width || 640;
+  const srcHeight = settings.height || 480;
+
+  const isPortrait = localVideoRotation === 90 || localVideoRotation === 270;
+  const destWidth = isPortrait ? srcHeight : srcWidth;
+  const destHeight = isPortrait ? srcWidth : srcHeight;
+
+  // Create or update canvas
+  if (!rotationCanvas) {
+    rotationCanvas = document.createElement('canvas');
+    rotationCtx = rotationCanvas.getContext('2d');
+  }
+
+  rotationCanvas.width = destWidth;
+  rotationCanvas.height = destHeight;
+
+  // Create a video element to read frames from
+  const tempVideo = document.createElement('video');
+  tempVideo.srcObject = new MediaStream([videoTrack]);
+  tempVideo.muted = true;
+  await tempVideo.play();
+
+  // Draw rotated frames to canvas
+  function drawFrame() {
+    if (!rotationCanvas) return;
+
+    rotationCtx.save();
+    rotationCtx.translate(destWidth / 2, destHeight / 2);
+    rotationCtx.rotate((localVideoRotation * Math.PI) / 180);
+
+    if (isPortrait) {
+      rotationCtx.drawImage(tempVideo, -srcWidth / 2, -srcHeight / 2, srcWidth, srcHeight);
+    } else {
+      rotationCtx.drawImage(tempVideo, -srcWidth / 2, -srcHeight / 2, srcWidth, srcHeight);
+    }
+
+    rotationCtx.restore();
+    requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
+
+  // Get stream from canvas
+  canvasStream = rotationCanvas.captureStream(30);
+
+  // Add audio track to canvas stream
+  const audioTrack = localStream.getAudioTracks()[0];
+  if (audioTrack) {
+    canvasStream.addTrack(audioTrack);
+  }
+
+  // Update local video preview
+  const localVideo = document.getElementById('local-video');
+  localVideo.srcObject = canvasStream;
+  localVideo.style.transform = 'none';
+  localVideo.style.width = '20%';
+  localVideo.style.height = 'auto';
+  localVideo.style.aspectRatio = isPortrait ? '9/16' : '16/9';
+
+  // Update the stream being sent to remote peer
+  if (currentCall && currentCall.peerConnection) {
+    const sender = currentCall.peerConnection.getSenders().find(s => s.track?.kind === 'video');
+    const newVideoTrack = canvasStream.getVideoTracks()[0];
+    if (sender && newVideoTrack) {
+      await sender.replaceTrack(newVideoTrack);
+    }
+  }
+}
 
 window.toggleFullscreen = function() {
   if (!document.fullscreenElement) {
