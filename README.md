@@ -5,8 +5,10 @@ An always-on, two-way video portal connecting two offices using WebRTC for peer-
 ## Features
 
 - **Real-time video/audio** between two locations
-- **Office selection UI** - choose your location on launch
+- **Password protection** - login page with session cookies
+- **Office selection UI** - choose your location on launch (remembered via cookie)
 - **Camera controls** - mute mic, hide local video, rotate orientation, fullscreen
+- **Synced rotation** - camera rotation syncs to remote viewer via data channel
 - **Auto-hide UI** - controls fade away after 3 seconds, reappear on mouse movement
 - **Auto-reconnect** - automatically reconnects on network issues
 - **Auto-deploy** - GitHub Actions deploys on every push
@@ -45,9 +47,11 @@ An always-on, two-way video portal connecting two offices using WebRTC for peer-
 # On your server (e.g., Oracle Cloud free tier VM)
 cd server
 npm install
-pm2 start server.js --name portal-server
+PORTAL_PASSWORD=yourpassword pm2 start server.js --name portal-server
 pm2 save
 ```
+
+Set `PORTAL_PASSWORD` to your desired login password.
 
 ### 2. Set up HTTPS (required for camera access)
 
@@ -79,7 +83,7 @@ PEER_SERVER_PORT: 443,
 
 ### 5. Access the portal
 
-Open `https://your-domain.duckdns.org/client/index.html`
+Open `https://your-domain.duckdns.org` - you'll be prompted to log in, then redirected to the portal.
 
 ## Project Structure
 
@@ -93,6 +97,7 @@ portal/
 │   └── server.js           # PeerJS signaling server
 ├── client/
 │   ├── index.html          # UI with office selection
+│   ├── login.html          # Password login page
 │   ├── main.js             # WebRTC + PeerJS client
 │   ├── style.css
 │   └── config.js           # Server connection settings
@@ -106,9 +111,12 @@ portal/
 
 | Endpoint | Description |
 |----------|-------------|
-| `/` | Server dashboard |
+| `/` | Redirects to login or portal |
+| `/login` | Login page |
+| `/api/login` | POST: authenticate with password |
+| `/api/logout` | POST: clear session |
 | `/health` | Health check: `{ status, peers, peerIds }` |
-| `/client/` | Portal web client |
+| `/client/` | Portal web client (requires auth) |
 | `/peerjs` | PeerJS WebSocket endpoint |
 
 ## Auto-Deploy Setup
