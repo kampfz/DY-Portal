@@ -16,7 +16,8 @@ let hideControlsTimeout = null;
 
 // Show office selection or portal based on URL params
 document.addEventListener('DOMContentLoaded', () => {
-  if (LOCAL_ID && REMOTE_ID) {
+  const hasUrlParams = params.has('local') && params.has('remote');
+  if (hasUrlParams) {
     document.getElementById('office-select').classList.add('hidden');
     document.getElementById('portal').classList.remove('hidden');
     init();
