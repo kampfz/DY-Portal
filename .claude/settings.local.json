@@ -11,7 +11,8 @@
       "Bash(git commit -m 'Change office button icon to globe *)",
       "Bash(git commit -m 'Auto-hide UI controls after 3 seconds of inactivity *)",
       "Bash(git commit -m 'Update README with all features and controls *)",
-      "Bash(git commit -m 'Fix button icon vertical centering *)"
+      "Bash(git commit -m 'Fix button icon vertical centering *)",
+      "Bash(git commit -m 'Fix rotate camera to use proper 9:16 aspect ratio in portrait mode *)"
     ]
   }
 }

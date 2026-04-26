@@ -85,6 +85,8 @@ body {
   object-fit: cover;
   background: #222;
   z-index: 10;
+  aspect-ratio: 16/9;
+  transition: width 0.3s, height 0.3s;
 }
 
 

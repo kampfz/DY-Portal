@@ -330,12 +330,17 @@ window.toggleCamera = function() {
 window.rotateCamera = function() {
   localVideoRotation = (localVideoRotation + 90) % 360;
   const localVideo = document.getElementById('local-video');
+  const isPortrait = localVideoRotation === 90 || localVideoRotation === 270;
+
   localVideo.style.transform = `rotate(${localVideoRotation}deg)`;
 
-  // Adjust size for portrait mode
-  if (localVideoRotation === 90 || localVideoRotation === 270) {
+  if (isPortrait) {
+    localVideo.style.width = 'auto';
+    localVideo.style.height = '30vh';
     localVideo.style.aspectRatio = '9/16';
   } else {
+    localVideo.style.width = '20%';
+    localVideo.style.height = 'auto';
     localVideo.style.aspectRatio = '16/9';
   }
 };
