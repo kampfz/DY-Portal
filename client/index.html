@@ -57,11 +57,25 @@
   <script type="module" src="main.js"></script>
   <script>
     function selectOffice(local, remote) {
+      document.cookie = `office=${local},${remote}; max-age=${60*60*24*365}; path=/`;
       const url = new URL(window.location);
       url.searchParams.set('local', local);
       url.searchParams.set('remote', remote);
       window.location.href = url.toString();
     }
+
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('local') && params.has('remote')) return;
+
+      const match = document.cookie.match(/office=([^;]+)/);
+      if (match) {
+        const [local, remote] = match[1].split(',');
+        if (local && remote) {
+          selectOffice(local, remote);
+        }
+      }
+    })();
   </script>
 </body>
 </html>
