@@ -7,6 +7,7 @@ const REMOTE_ID = params.get('remote') || config.REMOTE_PEER_ID;
 let peer = null;
 let localStream = null;
 let currentCall = null;
+let dataConn = null;
 let isMuted = false;
 let isCameraHidden = false;
 let currentFacingMode = 'user';
@@ -169,7 +170,13 @@ function connectToPeerServer() {
   peer.on('open', (id) => {
     console.log('Connected to peer server with ID:', id);
     updateStatus(`Connected as ${id}, calling remote...`);
+    connectData();
     callRemote();
+  });
+
+  peer.on('connection', (conn) => {
+    console.log('Incoming data connection from:', conn.peer);
+    setupDataConnection(conn);
   });
 
   peer.on('call', (call) => {
@@ -262,6 +269,36 @@ function handleRemoteStream(stream) {
   updateStatus('Connected');
 }
 
+function connectData() {
+  if (!peer || !REMOTE_ID) return;
+
+  const conn = peer.connect(REMOTE_ID);
+  setupDataConnection(conn);
+}
+
+function setupDataConnection(conn) {
+  dataConn = conn;
+
+  conn.on('open', () => {
+    console.log('Data connection established');
+    if (localVideoRotation !== 0) {
+      conn.send({ type: 'rotation', rotation: localVideoRotation });
+    }
+  });
+
+  conn.on('data', (data) => {
+    if (data.type === 'rotation') {
+      const remoteVideo = document.getElementById('remote-video');
+      remoteVideo.style.transform = `rotate(${data.rotation}deg)`;
+    }
+  });
+
+  conn.on('close', () => {
+    console.log('Data connection closed');
+    dataConn = null;
+  });
+}
+
 let reconnectTimeout = null;
 
 function scheduleReconnect() {
@@ -332,10 +369,11 @@ window.rotateCamera = function() {
   localVideoRotation = (localVideoRotation + 90) % 360;
 
   const localVideo = document.getElementById('local-video');
-  const remoteVideo = document.getElementById('remote-video');
-
   localVideo.style.transform = `rotate(${localVideoRotation}deg)`;
-  remoteVideo.style.transform = `rotate(${localVideoRotation}deg)`;
+
+  if (dataConn && dataConn.open) {
+    dataConn.send({ type: 'rotation', rotation: localVideoRotation });
+  }
 };
 
 window.toggleFullscreen = function() {
