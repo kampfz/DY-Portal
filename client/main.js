@@ -13,9 +13,6 @@ let currentFacingMode = 'user';
 let availableCameras = [];
 let localVideoRotation = 0;
 let hideControlsTimeout = null;
-let canvasStream = null;
-let rotationCanvas = null;
-let rotationCtx = null;
 
 // Show office selection or portal based on URL params
 document.addEventListener('DOMContentLoaded', () => {
@@ -177,8 +174,7 @@ function connectToPeerServer() {
   peer.on('call', (call) => {
     console.log('Incoming call from:', call.peer);
     updateStatus(`Incoming call from ${call.peer}`);
-    const streamToSend = canvasStream || localStream;
-    call.answer(streamToSend);
+    call.answer(localStream);
 
     call.on('stream', (stream) => {
       handleRemoteStream(stream);
@@ -225,8 +221,7 @@ function callRemote() {
 
   updateStatus(`Calling ${REMOTE_ID}...`);
 
-  const streamToSend = canvasStream || localStream;
-  const call = peer.call(REMOTE_ID, streamToSend);
+  const call = peer.call(REMOTE_ID, localStream);
 
   if (!call) {
     console.log('Call failed to initiate');
@@ -332,86 +327,13 @@ window.toggleCamera = function() {
   localVideo.style.display = isCameraHidden ? 'none' : 'block';
 };
 
-window.rotateCamera = async function() {
+window.rotateCamera = function() {
   localVideoRotation = (localVideoRotation + 90) % 360;
   const isPortrait = localVideoRotation === 90 || localVideoRotation === 270;
 
-  // Update local preview with CSS
   const localVideo = document.getElementById('local-video');
   localVideo.classList.toggle('portrait', isPortrait);
-
-  // Update stream for remote peer
-  await updateRotatedStream();
 };
-
-async function updateRotatedStream() {
-  if (!localStream) return;
-
-  const videoTrack = localStream.getVideoTracks()[0];
-  if (!videoTrack) return;
-
-  const settings = videoTrack.getSettings();
-  const srcWidth = settings.width || 640;
-  const srcHeight = settings.height || 480;
-
-  const isPortrait = localVideoRotation === 90 || localVideoRotation === 270;
-  const destWidth = isPortrait ? srcHeight : srcWidth;
-  const destHeight = isPortrait ? srcWidth : srcHeight;
-
-  // Create canvas for rotation
-  if (!rotationCanvas) {
-    rotationCanvas = document.createElement('canvas');
-    rotationCtx = rotationCanvas.getContext('2d');
-
-    // Hidden video element to read frames
-    const sourceVideo = document.createElement('video');
-    sourceVideo.srcObject = localStream;
-    sourceVideo.muted = true;
-    sourceVideo.play();
-
-    // Animation loop
-    function drawFrame() {
-      if (!rotationCanvas || !rotationCtx) return;
-
-      const currentIsPortrait = localVideoRotation === 90 || localVideoRotation === 270;
-      const w = currentIsPortrait ? srcHeight : srcWidth;
-      const h = currentIsPortrait ? srcWidth : srcHeight;
-
-      if (rotationCanvas.width !== w) rotationCanvas.width = w;
-      if (rotationCanvas.height !== h) rotationCanvas.height = h;
-
-      rotationCtx.save();
-      rotationCtx.translate(w / 2, h / 2);
-      rotationCtx.rotate((localVideoRotation * Math.PI) / 180);
-      rotationCtx.drawImage(sourceVideo, -srcWidth / 2, -srcHeight / 2, srcWidth, srcHeight);
-      rotationCtx.restore();
-
-      requestAnimationFrame(drawFrame);
-    }
-    drawFrame();
-
-    // Create stream from canvas
-    canvasStream = rotationCanvas.captureStream(30);
-
-    // Add audio
-    const audioTrack = localStream.getAudioTracks()[0];
-    if (audioTrack) {
-      canvasStream.addTrack(audioTrack);
-    }
-  }
-
-  rotationCanvas.width = destWidth;
-  rotationCanvas.height = destHeight;
-
-  // Update remote peer
-  if (currentCall && currentCall.peerConnection) {
-    const sender = currentCall.peerConnection.getSenders().find(s => s.track?.kind === 'video');
-    const newVideoTrack = canvasStream.getVideoTracks()[0];
-    if (sender && newVideoTrack) {
-      await sender.replaceTrack(newVideoTrack);
-    }
-  }
-}
 
 window.toggleFullscreen = function() {
   if (!document.fullscreenElement) {
