@@ -1,0 +1,16 @@
+{
+  "name": "portal-server",
+  "version": "1.0.0",
+  "description": "PeerJS signaling server for video portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "peer": "^1.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

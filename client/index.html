@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <!-- Office Selection Screen -->
+  <div id="office-select">
+    <h1>Portal</h1>
+    <p>Select your office:</p>
+    <div class="office-buttons">
+      <button onclick="selectOffice('office-ny', 'office-serbia')">New York</button>
+      <button onclick="selectOffice('office-serbia', 'office-ny')">Serbia</button>
+    </div>
+  </div>
+
+  <!-- Video Portal Screen -->
+  <div id="portal" class="hidden">
+    <video id="remote-video" autoplay playsinline></video>
+    <video id="local-video" autoplay playsinline muted></video>
+    <div id="status">Initializing...</div>
+
+    <!-- Controls -->
+    <div id="controls">
+      <button id="btn-mute" onclick="toggleMute()" title="Mute/Unmute">
+        <span id="mute-icon">🔊</span>
+      </button>
+      <button id="btn-camera" onclick="toggleCamera()" title="Show/Hide Camera">
+        <span id="camera-icon">📷</span>
+      </button>
+      <button id="btn-rotate" onclick="rotateCamera()" title="Rotate Camera">
+        <span>🔄</span>
+      </button>
+      <button id="btn-fullscreen" onclick="toggleFullscreen()" title="Fullscreen">
+        <span id="fullscreen-icon">⛶</span>
+      </button>
+      <button id="btn-back" onclick="goBack()" title="Change Office">
+        <span>⬅️</span>
+      </button>
+    </div>
+
+    <!-- Camera Error Overlay -->
+    <div id="camera-error" class="hidden">
+      <div class="error-content">
+        <h2>Camera Error</h2>
+        <p id="error-message">Unable to access camera</p>
+        <button onclick="retryCamera()">Retry</button>
+        <button onclick="continueWithoutCamera()">Continue without camera</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+  <script>
+    function selectOffice(local, remote) {
+      const url = new URL(window.location);
+      url.searchParams.set('local', local);
+      url.searchParams.set('remote', remote);
+      window.location.href = url.toString();
+    }
+  </script>
+</body>
+</html>
