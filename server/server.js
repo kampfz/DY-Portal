@@ -59,27 +59,12 @@ app.post('/api/logout', (req, res) => {
 app.use('/client', requireAuth, express.static(path.join(__dirname, '../client')));
 
 app.get('/', (req, res) => {
-  res.send(`
-    <html>
-      <head><title>Portal Server Dashboard</title></head>
-      <body style="font-family: sans-serif; padding: 20px;">
-        <h1>Portal Server Dashboard</h1>
-        <p>Server is running on port ${PORT}</p>
-        <p>PeerJS endpoint: <code>/peerjs</code></p>
-        <p>Client: <a href="/client/index.html">/client/index.html</a></p>
-        <p>Health check: <a href="/health">/health</a></p>
-        <h2>Connected Peers</h2>
-        <pre id="peers">Loading...</pre>
-        <script>
-          setInterval(() => {
-            fetch('/health').then(r => r.json()).then(data => {
-              document.getElementById('peers').textContent = JSON.stringify(data, null, 2);
-            });
-          }, 2000);
-        </script>
-      </body>
-    </html>
-  `);
+  const sessionId = req.cookies.session;
+  if (sessionId && sessions.has(sessionId)) {
+    res.redirect('/client/index.html');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 let connectedPeers = new Set();
