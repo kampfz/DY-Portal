@@ -17,5 +17,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/client && git pull origin master 2>/dev/null || (cd ~ && git clone https://github.com/kampfz/DY-Portal.git temp-deploy && cp -r temp-deploy/client/* ~/client/ && rm -rf temp-deploy)
+            cd ~ && rm -rf temp-deploy
+            git clone https://github.com/kampfz/DY-Portal.git temp-deploy
+            cp -r temp-deploy/client/* ~/client/
+            cp -r temp-deploy/server/* ~/server/
+            cd ~/server && npm install
+            pm2 restart portal-server
+            rm -rf ~/temp-deploy
             echo "Deployed at $(date)"
