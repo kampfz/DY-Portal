@@ -330,10 +330,12 @@ window.toggleCamera = function() {
 
 window.rotateCamera = function() {
   localVideoRotation = (localVideoRotation + 90) % 360;
-  const isPortrait = localVideoRotation === 90 || localVideoRotation === 270;
 
   const localVideo = document.getElementById('local-video');
-  localVideo.classList.toggle('portrait', isPortrait);
+  const remoteVideo = document.getElementById('remote-video');
+
+  localVideo.style.transform = `rotate(${localVideoRotation}deg)`;
+  remoteVideo.style.transform = `rotate(${localVideoRotation}deg)`;
 };
 
 window.toggleFullscreen = function() {
