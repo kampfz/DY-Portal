@@ -27,8 +27,8 @@ sudo mkdir -p /Users/Shared/portal
 cd /Users/Shared/portal
 
 # Download scripts
-curl -O https://raw.githubusercontent.com/kampfz/DY-Portal/master/scripts/start-kiosk-mac.sh
-curl -O https://raw.githubusercontent.com/kampfz/DY-Portal/master/scripts/watchdog-mac.sh
+curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/start-kiosk-mac.sh
+curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/watchdog-mac.sh
 
 # Make executable
 chmod +x *.sh
@@ -64,7 +64,7 @@ Download and install the LaunchAgent:
 ```bash
 # Download the plist
 cd /Users/Shared/portal
-curl -O https://raw.githubusercontent.com/kampfz/DY-Portal/master/scripts/com.portal.watchdog.plist
+curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/com.portal.watchdog.plist
 
 # Copy to LaunchAgents
 cp com.portal.watchdog.plist ~/Library/LaunchAgents/

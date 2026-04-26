@@ -16,7 +16,11 @@
       "Bash(git commit -m 'Rotate video via canvas so remote end sees rotation too *)",
       "Bash(git commit -m 'Fix local preview: use CSS classes for portrait/landscape display *)",
       "Bash(git commit -m 'Simplify rotation - CSS only for local preview *)",
-      "Bash(git commit -m 'Fix portrait mode for Chrome - use explicit pixel dimensions *)"
+      "Bash(git commit -m 'Fix portrait mode for Chrome - use explicit pixel dimensions *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npm install *)",
+      "Bash(gh api *)",
+      "Bash(git remote *)"
     ]
   }
 }
