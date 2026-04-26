@@ -334,7 +334,13 @@ window.toggleCamera = function() {
 
 window.rotateCamera = async function() {
   localVideoRotation = (localVideoRotation + 90) % 360;
+  const isPortrait = localVideoRotation === 90 || localVideoRotation === 270;
 
+  // Update local preview with CSS
+  const localVideo = document.getElementById('local-video');
+  localVideo.classList.toggle('portrait', isPortrait);
+
+  // Update stream for remote peer
   await updateRotatedStream();
 };
 
@@ -352,58 +358,52 @@ async function updateRotatedStream() {
   const destWidth = isPortrait ? srcHeight : srcWidth;
   const destHeight = isPortrait ? srcWidth : srcHeight;
 
-  // Create or update canvas
+  // Create canvas for rotation
   if (!rotationCanvas) {
     rotationCanvas = document.createElement('canvas');
     rotationCtx = rotationCanvas.getContext('2d');
+
+    // Hidden video element to read frames
+    const sourceVideo = document.createElement('video');
+    sourceVideo.srcObject = localStream;
+    sourceVideo.muted = true;
+    sourceVideo.play();
+
+    // Animation loop
+    function drawFrame() {
+      if (!rotationCanvas || !rotationCtx) return;
+
+      const currentIsPortrait = localVideoRotation === 90 || localVideoRotation === 270;
+      const w = currentIsPortrait ? srcHeight : srcWidth;
+      const h = currentIsPortrait ? srcWidth : srcHeight;
+
+      if (rotationCanvas.width !== w) rotationCanvas.width = w;
+      if (rotationCanvas.height !== h) rotationCanvas.height = h;
+
+      rotationCtx.save();
+      rotationCtx.translate(w / 2, h / 2);
+      rotationCtx.rotate((localVideoRotation * Math.PI) / 180);
+      rotationCtx.drawImage(sourceVideo, -srcWidth / 2, -srcHeight / 2, srcWidth, srcHeight);
+      rotationCtx.restore();
+
+      requestAnimationFrame(drawFrame);
+    }
+    drawFrame();
+
+    // Create stream from canvas
+    canvasStream = rotationCanvas.captureStream(30);
+
+    // Add audio
+    const audioTrack = localStream.getAudioTracks()[0];
+    if (audioTrack) {
+      canvasStream.addTrack(audioTrack);
+    }
   }
 
   rotationCanvas.width = destWidth;
   rotationCanvas.height = destHeight;
 
-  // Create a video element to read frames from
-  const tempVideo = document.createElement('video');
-  tempVideo.srcObject = new MediaStream([videoTrack]);
-  tempVideo.muted = true;
-  await tempVideo.play();
-
-  // Draw rotated frames to canvas
-  function drawFrame() {
-    if (!rotationCanvas) return;
-
-    rotationCtx.save();
-    rotationCtx.translate(destWidth / 2, destHeight / 2);
-    rotationCtx.rotate((localVideoRotation * Math.PI) / 180);
-
-    if (isPortrait) {
-      rotationCtx.drawImage(tempVideo, -srcWidth / 2, -srcHeight / 2, srcWidth, srcHeight);
-    } else {
-      rotationCtx.drawImage(tempVideo, -srcWidth / 2, -srcHeight / 2, srcWidth, srcHeight);
-    }
-
-    rotationCtx.restore();
-    requestAnimationFrame(drawFrame);
-  }
-  drawFrame();
-
-  // Get stream from canvas
-  canvasStream = rotationCanvas.captureStream(30);
-
-  // Add audio track to canvas stream
-  const audioTrack = localStream.getAudioTracks()[0];
-  if (audioTrack) {
-    canvasStream.addTrack(audioTrack);
-  }
-
-  // Update local video preview
-  const localVideo = document.getElementById('local-video');
-  localVideo.srcObject = canvasStream;
-  localVideo.style.transform = 'none';
-  localVideo.style.width = '20%';
-  localVideo.style.height = 'auto';
-  localVideo.style.aspectRatio = isPortrait ? '9/16' : '16/9';
-
-  // Update the stream being sent to remote peer
+  // Update remote peer
   if (currentCall && currentCall.peerConnection) {
     const sender = currentCall.peerConnection.getSenders().find(s => s.track?.kind === 'video');
     const newVideoTrack = canvasStream.getVideoTracks()[0];
