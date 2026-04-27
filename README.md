@@ -150,12 +150,15 @@ For Mac Mini displays, see the full setup guide: **[docs/MAC_SETUP.md](docs/MAC_
 Quick start:
 
 ```bash
-# Download and run
-sudo mkdir -p /Users/Shared/portal && cd /Users/Shared/portal
+# Download scripts
+sudo mkdir -p /Users/Shared/portal && cd ~
 curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/start-kiosk-mac.sh
 curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/watchdog-mac.sh
-chmod +x *.sh
-./start-kiosk-mac.sh
+sudo mv start-kiosk-mac.sh watchdog-mac.sh /Users/Shared/portal/
+sudo chmod +x /Users/Shared/portal/*.sh
+
+# Run
+/Users/Shared/portal/start-kiosk-mac.sh
 ```
 
 ## URL Parameters
