@@ -60,15 +60,24 @@ These are saved as cookies and won't be asked again.
 
 ## Step 5: Enable Auto-Start on Boot
 
-Download and install the LaunchAgent:
+### Option A: Login Items (Recommended)
+
+1. Open **Automator** (Cmd + Space, type "Automator")
+2. Choose **Application**
+3. Search for "Run Shell Script" and drag it to the workflow
+4. Enter: `/Users/Shared/portal/watchdog-mac.sh`
+5. **File > Save** as `Portal Watchdog.app` to your **Applications** folder
+6. Open **System Settings** > **General** > **Login Items**
+7. Click **+** under "Open at Login"
+8. Navigate to **Applications** and select `Portal Watchdog.app`
+
+### Option B: LaunchAgent
 
 ```bash
-# Download the plist
-cd ~
-curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/com.portal.watchdog.plist
+# Create the plist (copy content from scripts/com.portal.watchdog.plist)
+nano ~/Library/LaunchAgents/com.portal.watchdog.plist
 
-# Copy to LaunchAgents and load it
-cp com.portal.watchdog.plist ~/Library/LaunchAgents/
+# Load it
 launchctl load ~/Library/LaunchAgents/com.portal.watchdog.plist
 ```
 
@@ -129,7 +138,12 @@ ls "/Applications/Google Chrome.app"
 ### Stop the watchdog
 
 ```bash
+# If using LaunchAgent:
 launchctl unload ~/Library/LaunchAgents/com.portal.watchdog.plist
+
+# If using Login Items, remove from System Settings > General > Login Items
+# Then kill the running process:
+pkill -f watchdog-mac.sh
 ```
 
 ### Check watchdog logs
@@ -142,13 +156,13 @@ cat /Users/Shared/portal/watchdog-mac.log
 
 ```bash
 # Stop watchdog
-launchctl unload ~/Library/LaunchAgents/com.portal.watchdog.plist
+pkill -f watchdog-mac.sh
 
 # Kill Chrome
 pkill -f "Google Chrome"
 
 # Restart watchdog (will relaunch Chrome)
-launchctl load ~/Library/LaunchAgents/com.portal.watchdog.plist
+/Users/Shared/portal/watchdog-mac.sh &
 ```
 
 ### Clear saved cookies (reset login/office)
@@ -163,7 +177,7 @@ rm -rf ~/Library/Application\ Support/Google/Chrome/Default/Cookies
 | Action | Command |
 |--------|---------|
 | Start kiosk manually | `/Users/Shared/portal/start-kiosk-mac.sh` |
-| Stop watchdog | `launchctl unload ~/Library/LaunchAgents/com.portal.watchdog.plist` |
-| Start watchdog | `launchctl load ~/Library/LaunchAgents/com.portal.watchdog.plist` |
+| Stop watchdog | `pkill -f watchdog-mac.sh` |
+| Start watchdog manually | `/Users/Shared/portal/watchdog-mac.sh &` |
 | View logs | `cat /Users/Shared/portal/watchdog-mac.log` |
 | Exit kiosk | `Cmd + Q` |
