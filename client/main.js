@@ -190,12 +190,14 @@ function connectToPeerServer() {
 
     call.on('close', () => {
       updateStatus('Call closed, reconnecting...');
+      showOfflineOverlay();
       scheduleReconnect();
     });
 
     call.on('error', (err) => {
       console.error('Call error:', err);
       updateStatus(`Call error: ${err.message}`);
+      showOfflineOverlay();
       scheduleReconnect();
     });
 
@@ -243,12 +245,14 @@ function callRemote() {
 
   call.on('close', () => {
     updateStatus('Call ended, reconnecting...');
+    showOfflineOverlay();
     scheduleReconnect();
   });
 
   call.on('error', (err) => {
     console.error('Outgoing call error:', err);
     updateStatus(`Call error: ${err.message}`);
+    showOfflineOverlay();
     scheduleReconnect();
   });
 
@@ -266,7 +270,12 @@ function handleRemoteStream(stream) {
     console.error('Error playing remote video:', err);
   });
 
+  document.getElementById('offline-overlay').classList.add('hidden');
   updateStatus('Connected');
+}
+
+function showOfflineOverlay() {
+  document.getElementById('offline-overlay').classList.remove('hidden');
 }
 
 function connectData() {
