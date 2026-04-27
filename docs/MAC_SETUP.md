@@ -64,13 +64,16 @@ These are saved as cookies and won't be asked again.
 ### Option A: Login Items (Recommended)
 
 1. Open **Automator** (Cmd + Space, type "Automator")
-2. Choose **Application**
-3. Search for "Run Shell Script" and drag it to the workflow
-4. Enter: `/Users/Shared/portal/watchdog-mac.sh`
-5. **File > Save** as `Portal Watchdog.app` to your **Applications** folder
-6. Open **System Settings** > **General** > **Login Items**
-7. Click **+** under "Open at Login"
-8. Navigate to **Applications** and select `Portal Watchdog.app`
+2. Click **New Document**
+3. Select **Application** and click **Choose**
+4. In the search bar (top left), search for "Run Shell Script"
+5. Drag **Run Shell Script** to the workflow area on the right
+6. Replace the default text with: `/Users/Shared/portal/watchdog-mac.sh`
+7. Go to **File > Save** (Cmd + S)
+8. Name it `Portal Watchdog` and save to your **Applications** folder
+9. Open **System Settings** > **General** > **Login Items**
+10. Click **+** under "Open at Login"
+11. Navigate to **Applications** and select `Portal Watchdog.app`
 
 ### Option B: LaunchAgent
 
