@@ -8,12 +8,21 @@ let peer = null;
 let localStream = null;
 let currentCall = null;
 let dataConn = null;
-let isMuted = false;
-let isCameraHidden = false;
+let isMuted = getCookie('muted') === 'true';
+let isCameraHidden = getCookie('cameraHidden') === 'true';
 let currentFacingMode = 'user';
 let availableCameras = [];
 let localVideoRotation = 0;
 let hideControlsTimeout = null;
+
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
+function setCookie(name, value) {
+  document.cookie = `${name}=${value}; max-age=${60*60*24*365}; path=/`;
+}
 
 // Show office selection or portal based on URL params
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (hasUrlParams) {
     document.getElementById('office-select').classList.add('hidden');
     document.getElementById('portal').classList.remove('hidden');
+    applyInitialSettings();
     init();
     setupMouseTracking();
   }
@@ -354,19 +364,29 @@ window.toggleMute = function() {
   if (!localStream) return;
 
   isMuted = !isMuted;
+  setCookie('muted', isMuted);
   localStream.getAudioTracks().forEach(track => {
     track.enabled = !isMuted;
   });
 
-  const btn = document.getElementById('btn-mute');
-  const icon = document.getElementById('mute-icon');
-  btn.classList.toggle('active', isMuted);
-  icon.textContent = isMuted ? '🚫' : '🎤';
+  updateMuteUI();
 };
 
 window.toggleCamera = function() {
   isCameraHidden = !isCameraHidden;
+  setCookie('cameraHidden', isCameraHidden);
 
+  updateCameraUI();
+};
+
+function updateMuteUI() {
+  const btn = document.getElementById('btn-mute');
+  const icon = document.getElementById('mute-icon');
+  btn.classList.toggle('active', isMuted);
+  icon.textContent = isMuted ? '🚫' : '🎤';
+}
+
+function updateCameraUI() {
   const btn = document.getElementById('btn-camera');
   const icon = document.getElementById('camera-icon');
   const localVideo = document.getElementById('local-video');
@@ -374,7 +394,12 @@ window.toggleCamera = function() {
   btn.classList.toggle('active', isCameraHidden);
   icon.textContent = isCameraHidden ? '🚫' : '📷';
   localVideo.style.display = isCameraHidden ? 'none' : 'block';
-};
+}
+
+function applyInitialSettings() {
+  updateMuteUI();
+  updateCameraUI();
+}
 
 window.rotateCamera = function() {
   localVideoRotation = (localVideoRotation + 90) % 360;
