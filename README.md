@@ -151,10 +151,11 @@ Quick start:
 
 ```bash
 # Download scripts
-sudo mkdir -p /Users/Shared/portal && cd /Users/Shared/portal
+sudo mkdir -p /Users/Shared/portal/chrome-data && cd /Users/Shared/portal
 sudo curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/start-kiosk-mac.sh
 sudo curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/watchdog-mac.sh
 sudo chmod +x /Users/Shared/portal/*.sh
+sudo chmod 777 /Users/Shared/portal/chrome-data
 
 # Run
 /Users/Shared/portal/start-kiosk-mac.sh

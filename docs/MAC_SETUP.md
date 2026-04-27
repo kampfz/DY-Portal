@@ -30,6 +30,10 @@ cd /Users/Shared/portal
 sudo curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/start-kiosk-mac.sh
 sudo curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/watchdog-mac.sh
 sudo chmod +x /Users/Shared/portal/*.sh
+
+# Create Chrome data directory with proper permissions
+sudo mkdir -p /Users/Shared/portal/chrome-data
+sudo chmod 777 /Users/Shared/portal/chrome-data
 ```
 
 ## Step 3: Grant Chrome Camera/Microphone Access
