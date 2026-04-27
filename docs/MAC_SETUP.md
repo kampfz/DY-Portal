@@ -91,7 +91,7 @@ The watchdog will now:
 ### Disable Sleep
 
 1. **System Settings** > **Displays** > **Advanced...**
-2. Turn off "Prevent automatic sleeping when the display is off"
+2. Turn **on** "Prevent automatic sleeping when the display is off"
 3. **System Settings** > **Lock Screen**
 4. Set "Turn display off when inactive" to **Never**
 5. Set "Require password after screen saver" to **Never**
