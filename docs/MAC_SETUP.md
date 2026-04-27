@@ -25,13 +25,10 @@ Open Terminal (Cmd + Space, type "Terminal") and run:
 # Create portal directory
 sudo mkdir -p /Users/Shared/portal
 
-# Download scripts
-cd ~
-curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/start-kiosk-mac.sh
-curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/watchdog-mac.sh
-
-# Move to portal directory and make executable
-sudo mv start-kiosk-mac.sh watchdog-mac.sh /Users/Shared/portal/
+# Download scripts directly to portal directory
+cd /Users/Shared/portal
+sudo curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/start-kiosk-mac.sh
+sudo curl -O https://raw.githubusercontent.com/DE-YAN-Studio/DY-Portal/master/scripts/watchdog-mac.sh
 sudo chmod +x /Users/Shared/portal/*.sh
 ```
 
