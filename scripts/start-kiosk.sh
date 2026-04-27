@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # Portal Kiosk Launcher
-# Edit PEER_SERVER_HOST before running
+# Edit URL before running
 
-PEER_SERVER_HOST="YOUR_ORACLE_VM_IP"
-PEER_SERVER_PORT="9000"
-URL="http://${PEER_SERVER_HOST}:${PEER_SERVER_PORT}/client/index.html"
+URL="https://dy-portal.duckdns.org"
+USER_DATA_DIR="$HOME/.portal-chrome-data"
 
 # Kill any existing Chromium processes
 pkill -f chromium || true
@@ -13,9 +12,10 @@ pkill -f chrome || true
 
 sleep 2
 
-# Launch Chromium in kiosk mode
+# Launch Chromium in kiosk mode with persistent profile
 chromium-browser \
   --kiosk \
+  --user-data-dir="$USER_DATA_DIR" \
   --autoplay-policy=no-user-gesture-required \
   --disable-infobars \
   --noerrdialogs \
@@ -23,7 +23,6 @@ chromium-browser \
   --disable-translate \
   --disable-features=TranslateUI \
   --disable-session-crashed-bubble \
-  --disable-restore-session-state \
   --use-fake-ui-for-media-stream \
   "$URL" &
 

@@ -169,7 +169,7 @@ pkill -f "Google Chrome"
 
 ```bash
 # Quit Chrome first, then:
-rm -rf ~/Library/Application\ Support/Google/Chrome/Default/Cookies
+sudo rm -rf /Users/Shared/portal/chrome-data
 ```
 
 ## Quick Reference
