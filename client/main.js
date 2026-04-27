@@ -217,18 +217,37 @@ function connectToPeerServer() {
   peer.on('disconnected', () => {
     console.log('Disconnected from peer server, attempting reconnect...');
     updateStatus('Disconnected, reconnecting...');
-    peer.reconnect();
+    showOfflineOverlay();
+    setTimeout(() => {
+      if (peer && !peer.destroyed) {
+        peer.reconnect();
+      } else {
+        connectToPeerServer();
+      }
+    }, 1000);
   });
 
   peer.on('error', (err) => {
     console.error('Peer error:', err);
     updateStatus(`Error: ${err.type}`);
-    scheduleReconnect();
+    showOfflineOverlay();
+
+    if (err.type === 'unavailable-id') {
+      console.log('ID taken, retrying with delay...');
+      setTimeout(() => connectToPeerServer(), 5000);
+    } else if (err.type === 'peer-unavailable') {
+      scheduleReconnect();
+    } else if (err.type === 'network' || err.type === 'server-error') {
+      scheduleReconnect();
+    } else {
+      scheduleReconnect();
+    }
   });
 
   peer.on('close', () => {
     console.log('Peer connection closed');
     updateStatus('Connection closed');
+    showOfflineOverlay();
     scheduleReconnect();
   });
 }
@@ -281,6 +300,7 @@ function handleRemoteStream(stream) {
   });
 
   document.getElementById('offline-overlay').classList.add('hidden');
+  resetReconnectAttempts();
   updateStatus('Connected');
 }
 
@@ -321,26 +341,38 @@ function setupDataConnection(conn) {
 }
 
 let reconnectTimeout = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_DELAY = 30000;
+const BASE_RECONNECT_DELAY = 2000;
 
 function scheduleReconnect() {
   if (reconnectTimeout) {
     clearTimeout(reconnectTimeout);
   }
 
-  updateStatus('Reconnecting...');
+  reconnectAttempts++;
+  const delay = Math.min(BASE_RECONNECT_DELAY * Math.pow(1.5, reconnectAttempts - 1), MAX_RECONNECT_DELAY);
+
+  updateStatus(`Reconnecting in ${Math.round(delay/1000)}s...`);
 
   reconnectTimeout = setTimeout(() => {
     reconnect();
-  }, config.RECONNECT_INTERVAL_MS);
+  }, delay);
 }
 
 function reconnect() {
+  if (!navigator.onLine) {
+    updateStatus('Offline, waiting for network...');
+    return;
+  }
+
   if (peer && peer.destroyed) {
     console.log('Peer destroyed, creating new connection...');
     connectToPeerServer();
   } else if (peer && !peer.disconnected) {
     console.log('Peer still connected, attempting call...');
     callRemote();
+    connectData();
   } else if (peer) {
     console.log('Attempting peer reconnect...');
     peer.reconnect();
@@ -349,6 +381,33 @@ function reconnect() {
     connectToPeerServer();
   }
 }
+
+function resetReconnectAttempts() {
+  reconnectAttempts = 0;
+}
+
+// Network status handlers
+window.addEventListener('online', () => {
+  console.log('Network online, reconnecting...');
+  updateStatus('Network restored, reconnecting...');
+  reconnect();
+});
+
+window.addEventListener('offline', () => {
+  console.log('Network offline');
+  updateStatus('Network offline');
+  showOfflineOverlay();
+});
+
+// Reconnect when tab becomes visible
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    console.log('Tab visible, checking connection...');
+    if (!currentCall || !peer || peer.disconnected) {
+      reconnect();
+    }
+  }
+});
 
 function updateStatus(message) {
   const timestamp = new Date().toLocaleTimeString();
